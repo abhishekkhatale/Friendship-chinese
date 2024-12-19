@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friendship chinese</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: "Poppins", serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background-color: #f8f8f8;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            aspect-ratio: 3 / 4;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .btn {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background-color: #333;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .navigation {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .image-container {
+                max-width: 300px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MENU</h1>
+        <div class="image-container">
+            <img id="showcase-image" src="1.png" alt="Showcase Image">
+        </div>
+        <div class="navigation">
+            <button class="btn" id="prev-btn">Previous</button>
+            <button class="btn" id="next-btn">Next</button>
+            <button class="btn" id="download-btn">Download Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const images = [
+            '1.png', '2.png', '3.png', '4.png'
+        ];
+
+        let currentIndex = 0;
+        const showcaseImage = document.getElementById('showcase-image');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const downloadBtn = document.getElementById('download-btn');
+
+        function updateImage() {
+            showcaseImage.style.opacity = '0';
+            setTimeout(() => {
+                showcaseImage.src = images[currentIndex];
+                showcaseImage.style.opacity = '1';
+            }, 300);
+        }
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateImage();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateImage();
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            const pdf = new jspdf.jsPDF();
+            const imageContainer = document.querySelector('.image-container');
+            const originalSrc = showcaseImage.src;
+
+            for (let i = 0; i < images.length; i++) {
+                showcaseImage.src = images[i];
+                await new Promise(resolve => setTimeout(resolve, 100)); // Wait for image to load
+
+                const canvas = await html2canvas(imageContainer);
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+                if (i > 0) {
+                    pdf.addPage();
+                }
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+            }
+
+            showcaseImage.src = originalSrc;
+            pdf.save('menu.pdf');
+        });
+    </script>
+</body>
+</html>
+
